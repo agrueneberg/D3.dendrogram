@@ -1,0 +1,1920 @@
+<!DOCTYPE html>
+<meta charset="UTF-8">
+<title>Dendrogram</title>
+<style>
+    .node circle {
+        fill: #fff;
+        stroke: steelblue;
+        stroke-width: 1.5px;
+    }
+    .node {
+        font: 10px sans-serif;
+    }
+    .link {
+        fill: none;
+        stroke: #ccc;
+        stroke-width: 1.5px;
+    }
+</style>
+<script src="../lib/d3.js"></script>
+<script src="dendrogram.js"></script>
+<script>
+
+ // Wait until the browser has created a body element for us.
+    document.addEventListener("DOMContentLoaded", function () {
+
+        var labels, data, viz;
+
+        labels = [
+            "14-3-3_epsilon-M-C",
+            "4E-BP1-R-V",
+            "4E-BP1_pS65-R-V",
+            "4E-BP1_pT37-R-V",
+            "4E-BP1_pT70-R-C",
+            "53BP1-R-C",
+            "ACC_pS79-R-V",
+            "ACC1-R-C",
+            "AIB1-M-V",
+            "Akt-R-V",
+            "Akt_pS473-R-V",
+            "Akt_pT308-R-V",
+            "alpha-Catenin-M-V",
+            "AMPK_alpha-R-C",
+            "AMPK_pT172-R-V",
+            "Annexin_I-R-V",
+            "AR-R-V",
+            "ARID1A-M-V",
+            "ATM-R-C",
+            "B-Raf-M-NA",
+            "Bak-R-C",
+            "Bax-R-V",
+            "Bcl-2-R-NA",
+            "Bcl-X-R-C",
+            "Bcl-xL-R-V",
+            "Beclin-G-V",
+            "beta-Catenin-R-V",
+            "Bid-R-C",
+            "Bim-R-V",
+            "c-Jun_pS73-R-C",
+            "c-Met-M-C",
+            "c-Met_pY1235-R-C",
+            "c-Myc-R-C",
+            "C-Raf-R-V",
+            "C-Raf_pS338-R-C",
+            "Caspase-3_active-R-C",
+            "Caspase-7_cleavedD198-R-C",
+            "Caspase-8-M-C",
+            "Caspase-9_cleavedD330-R-C",
+            "Caveolin-1-R-V",
+            "CD20-R-C",
+            "CD31-M-V",
+            "CD49b-M-V",
+            "CDK1-R-V",
+            "Chk1-R-C",
+            "Chk1_pS345-R-C",
+            "Chk2-M-C",
+            "Chk2_pT68-R-C",
+            "cIAP-R-V",
+            "Claudin-7-R-V",
+            "Collagen_VI-R-V",
+            "COX-2-R-C",
+            "Cyclin_B1-R-V",
+            "Cyclin_D1-R-V",
+            "Cyclin_E1-M-V",
+            "Cyclin_E2-R-C",
+            "DJ-1-R-C",
+            "Dvl3-R-V",
+            "E-Cadherin-R-V",
+            "eEF2-R-V",
+            "eEF2K-R-V",
+            "EGFR-R-C",
+            "EGFR_pY1068-R-V",
+            "EGFR_pY1173-R-C",
+            "EGFR_pY992-R-V",
+            "eIF4E-R-V",
+            "ER-alpha-R-V",
+            "ER-alpha_pS118-R-V",
+            "ERCC1-M-C",
+            "ERK2-R-NA",
+            "FAK-R-C",
+            "Fibronectin-R-C",
+            "FOXO3a-R-C",
+            "FOXO3a_pS318_S321-R-C",
+            "GAB2-R-V",
+            "GATA3-M-V",
+            "GSK3-alpha-beta-M-V",
+            "GSK3-alpha-beta_pS21_S9-R-V",
+            "GSK3_pS9-R-V",
+            "HER2-M-V",
+            "HER2_pY1248-R-V",
+            "HER3-R-V",
+            "HER3_pY1298-R-C",
+            "HSP70-R-C",
+            "IGF-1R-beta-R-C",
+            "IGFBP2-R-V",
+            "INPP4B-G-C",
+            "IRS1-R-V",
+            "JNK_pT183_Y185-R-V",
+            "JNK2-R-C",
+            "K-Ras-M-C",
+            "Ku80-R-C",
+            "Lck-R-V",
+            "LKB1-M-NA",
+            "MAPK_pT202_Y204-R-V",
+            "MEK1-R-V",
+            "MEK1_pS217_S221-R-V",
+            "MIG-6-M-V",
+            "Mre11-R-C",
+            "MSH2-M-C",
+            "MSH6-R-C",
+            "mTOR-R-V",
+            "mTOR_pS2448-R-C",
+            "N-Cadherin-R-V",
+            "NF-kB-p65_pS536-R-C",
+            "NF2-R-C",
+            "Notch1-R-V",
+            "Notch3-R-C",
+            "P-Cadherin-R-C",
+            "p21-R-C",
+            "p27-R-V",
+            "p27_pT157-R-C",
+            "p27_pT198-R-V",
+            "p38_MAPK-R-C",
+            "p38_pT180_Y182-R-V",
+            "p53-R-V",
+            "p70S6K-R-V",
+            "p70S6K_pT389-R-V",
+            "p90RSK_pT359_S363-R-C",
+            "PARP_cleaved-M-C",
+            "Paxillin-R-V",
+            "PCNA-M-V",
+            "PDK1_pS241-R-V",
+            "PEA-15-R-V",
+            "PI3K-p110-alpha-R-C",
+            "PI3K-p85-R-V",
+            "PKC-alpha-M-V",
+            "PKC-alpha_pS657-R-V",
+            "PKC-delta_pS664-R-V",
+            "PR-R-V",
+            "PRAS40_pT246-R-V",
+            "PTCH-R-C",
+            "PTEN-R-V",
+            "Rab11-R-V",
+            "Rab25-R-C",
+            "Rad50-M-C",
+            "Rad51-M-C",
+            "Rb-M-V",
+            "Rb_pS807_S811-R-V",
+            "S6-R-NA",
+            "S6_pS235_S236-R-V",
+            "S6_pS240_S244-R-V",
+            "SETD2-R-NA",
+            "Shc_pY317-R-NA",
+            "Smac-M-V",
+            "Smad1-R-V",
+            "Smad3-R-V",
+            "Smad4-M-V",
+            "Snail-M-C",
+            "Src-M-V",
+            "Src_pY416-R-C",
+            "Src_pY527-R-V",
+            "STAT3_pY705-R-V",
+            "STAT5-alpha-R-V",
+            "Stathmin-R-V",
+            "Syk-M-V",
+            "Tau-M-C",
+            "TAZ-R-C",
+            "TAZ_pS89-R-C",
+            "Transglutaminase-M-V",
+            "Tuberin-R-C",
+            "VASP-R-C",
+            "VEGFR2-R-C",
+            "XBP1-G-C",
+            "XIAP-R-C",
+            "XRCC1-R-C",
+            "YAP-R-V",
+            "YAP_pS127-R-C",
+            "YB-1-R-V",
+            "YB-1_pS102-R-V",
+            "c-Kit-R-V"
+        ];
+
+     // Yeah, I'm breaking my personal coding style guide here, but this thing is the devil!
+        data = [
+         {
+          "children": [
+           {
+            "children": [
+             {
+              "children": [
+               {
+                "children": [
+                 {
+                  "children": [
+                   {
+                    "children": [
+                     {
+                      "children": [
+                       {
+                        "children": [
+                         {
+                          "children": [
+                           {
+                            "children": [
+                             {
+                              "children": [
+                               {
+                                "children": [
+                                 {
+                                  "children": [
+                                   {
+                                    "children": [
+                                     {
+                                      "children": [
+                                       {
+                                        "children": [
+                                         {
+                                          "children": [
+                                           {
+                                            "children": [
+                                             {
+                                              "children": [
+                                               {
+                                                "label": 0,
+                                                "size": 1
+                                               },
+                                               {
+                                                "children": [
+                                                 {
+                                                  "label": 140,
+                                                  "size": 1
+                                                 },
+                                                 {
+                                                  "label": 141,
+                                                  "size": 1
+                                                 }
+                                                ],
+                                                "distance": 0.026982875472113088,
+                                                "size": 2
+                                               }
+                                              ],
+                                              "distance": 0.304459968179154,
+                                              "size": 3
+                                             },
+                                             {
+                                              "label": 162,
+                                              "size": 1
+                                             }
+                                            ],
+                                            "distance": 0.3668909786517591,
+                                            "size": 4
+                                           },
+                                           {
+                                            "label": 110,
+                                            "size": 1
+                                           }
+                                          ],
+                                          "distance": 0.38772682379887613,
+                                          "size": 5
+                                         },
+                                         {
+                                          "children": [
+                                           {
+                                            "children": [
+                                             {
+                                              "children": [
+                                               {
+                                                "children": [
+                                                 {
+                                                  "children": [
+                                                   {
+                                                    "label": 1,
+                                                    "size": 1
+                                                   },
+                                                   {
+                                                    "children": [
+                                                     {
+                                                      "children": [
+                                                       {
+                                                        "label": 4,
+                                                        "size": 1
+                                                       },
+                                                       {
+                                                        "label": 115,
+                                                        "size": 1
+                                                       }
+                                                      ],
+                                                      "distance": 0.24123770294643188,
+                                                      "size": 2
+                                                     },
+                                                     {
+                                                      "label": 161,
+                                                      "size": 1
+                                                     }
+                                                    ],
+                                                    "distance": 0.2771443549520433,
+                                                    "size": 3
+                                                   }
+                                                  ],
+                                                  "distance": 0.3311872227845969,
+                                                  "size": 4
+                                                 },
+                                                 {
+                                                  "label": 114,
+                                                  "size": 1
+                                                 }
+                                                ],
+                                                "distance": 0.34904134499457184,
+                                                "size": 5
+                                               },
+                                               {
+                                                "children": [
+                                                 {
+                                                  "children": [
+                                                   {
+                                                    "children": [
+                                                     {
+                                                      "children": [
+                                                       {
+                                                        "children": [
+                                                         {
+                                                          "children": [
+                                                           {
+                                                            "label": 8,
+                                                            "size": 1
+                                                           },
+                                                           {
+                                                            "label": 103,
+                                                            "size": 1
+                                                           }
+                                                          ],
+                                                          "distance": 0.15892177184435086,
+                                                          "size": 2
+                                                         },
+                                                         {
+                                                          "children": [
+                                                           {
+                                                            "label": 52,
+                                                            "size": 1
+                                                           },
+                                                           {
+                                                            "label": 139,
+                                                            "size": 1
+                                                           }
+                                                          ],
+                                                          "distance": 0.1588198767670682,
+                                                          "size": 2
+                                                         }
+                                                        ],
+                                                        "distance": 0.20408529943669174,
+                                                        "size": 4
+                                                       },
+                                                       {
+                                                        "children": [
+                                                         {
+                                                          "label": 32,
+                                                          "size": 1
+                                                         },
+                                                         {
+                                                          "label": 121,
+                                                          "size": 1
+                                                         }
+                                                        ],
+                                                        "distance": 0.2376830071153373,
+                                                        "size": 2
+                                                       }
+                                                      ],
+                                                      "distance": 0.25757148923311984,
+                                                      "size": 6
+                                                     },
+                                                     {
+                                                      "label": 43,
+                                                      "size": 1
+                                                     }
+                                                    ],
+                                                    "distance": 0.31557383525056176,
+                                                    "size": 7
+                                                   },
+                                                   {
+                                                    "children": [
+                                                     {
+                                                      "children": [
+                                                       {
+                                                        "label": 69,
+                                                        "size": 1
+                                                       },
+                                                       {
+                                                        "label": 123,
+                                                        "size": 1
+                                                       }
+                                                      ],
+                                                      "distance": 0.1682689433152228,
+                                                      "size": 2
+                                                     },
+                                                     {
+                                                      "label": 94,
+                                                      "size": 1
+                                                     }
+                                                    ],
+                                                    "distance": 0.31302733233375485,
+                                                    "size": 3
+                                                   }
+                                                  ],
+                                                  "distance": 0.3301404623858148,
+                                                  "size": 10
+                                                 },
+                                                 {
+                                                  "label": 34,
+                                                  "size": 1
+                                                 }
+                                                ],
+                                                "distance": 0.3725222916977717,
+                                                "size": 11
+                                               }
+                                              ],
+                                              "distance": 0.3834456100014774,
+                                              "size": 16
+                                             },
+                                             {
+                                              "label": 118,
+                                              "size": 1
+                                             }
+                                            ],
+                                            "distance": 0.42974489144837213,
+                                            "size": 17
+                                           },
+                                           {
+                                            "label": 152,
+                                            "size": 1
+                                           }
+                                          ],
+                                          "distance": 0.4426041152484855,
+                                          "size": 18
+                                         }
+                                        ],
+                                        "distance": 0.47332682374175467,
+                                        "size": 23
+                                       },
+                                       {
+                                        "label": 73,
+                                        "size": 1
+                                       }
+                                      ],
+                                      "distance": 0.5030957704224227,
+                                      "size": 24
+                                     },
+                                     {
+                                      "label": 93,
+                                      "size": 1
+                                     }
+                                    ],
+                                    "distance": 0.516419751910996,
+                                    "size": 25
+                                   },
+                                   {
+                                    "children": [
+                                     {
+                                      "children": [
+                                       {
+                                        "children": [
+                                         {
+                                          "label": 49,
+                                          "size": 1
+                                         },
+                                         {
+                                          "label": 58,
+                                          "size": 1
+                                         }
+                                        ],
+                                        "distance": 0.10057496143232791,
+                                        "size": 2
+                                       },
+                                       {
+                                        "children": [
+                                         {
+                                          "children": [
+                                           {
+                                            "label": 126,
+                                            "size": 1
+                                           },
+                                           {
+                                            "label": 127,
+                                            "size": 1
+                                           }
+                                          ],
+                                          "distance": 0.05340234502531549,
+                                          "size": 2
+                                         },
+                                         {
+                                          "label": 128,
+                                          "size": 1
+                                         }
+                                        ],
+                                        "distance": 0.19541975664925731,
+                                        "size": 3
+                                       }
+                                      ],
+                                      "distance": 0.3516851737483179,
+                                      "size": 5
+                                     },
+                                     {
+                                      "children": [
+                                       {
+                                        "label": 125,
+                                        "size": 1
+                                       },
+                                       {
+                                        "label": 132,
+                                        "size": 1
+                                       }
+                                      ],
+                                      "distance": 0.12574636293402008,
+                                      "size": 2
+                                     }
+                                    ],
+                                    "distance": 0.419048200331248,
+                                    "size": 7
+                                   }
+                                  ],
+                                  "distance": 0.5421264471974242,
+                                  "size": 32
+                                 },
+                                 {
+                                  "label": 56,
+                                  "size": 1
+                                 }
+                                ],
+                                "distance": 0.5774161787251016,
+                                "size": 33
+                               },
+                               {
+                                "children": [
+                                 {
+                                  "children": [
+                                   {
+                                    "children": [
+                                     {
+                                      "children": [
+                                       {
+                                        "children": [
+                                         {
+                                          "children": [
+                                           {
+                                            "label": 2,
+                                            "size": 1
+                                           },
+                                           {
+                                            "label": 3,
+                                            "size": 1
+                                           }
+                                          ],
+                                          "distance": 0.35041161099035323,
+                                          "size": 2
+                                         },
+                                         {
+                                          "children": [
+                                           {
+                                            "label": 99,
+                                            "size": 1
+                                           },
+                                           {
+                                            "label": 100,
+                                            "size": 1
+                                           }
+                                          ],
+                                          "distance": 0.33434256346959845,
+                                          "size": 2
+                                         }
+                                        ],
+                                        "distance": 0.4271511281478534,
+                                        "size": 4
+                                       },
+                                       {
+                                        "label": 104,
+                                        "size": 1
+                                       }
+                                      ],
+                                      "distance": 0.45430931222503523,
+                                      "size": 5
+                                     },
+                                     {
+                                      "children": [
+                                       {
+                                        "children": [
+                                         {
+                                          "children": [
+                                           {
+                                            "children": [
+                                             {
+                                              "label": 31,
+                                              "size": 1
+                                             },
+                                             {
+                                              "label": 98,
+                                              "size": 1
+                                             }
+                                            ],
+                                            "distance": 0.16766402168898675,
+                                            "size": 2
+                                           },
+                                           {
+                                            "label": 38,
+                                            "size": 1
+                                           }
+                                          ],
+                                          "distance": 0.23806149311871005,
+                                          "size": 3
+                                         },
+                                         {
+                                          "label": 68,
+                                          "size": 1
+                                         }
+                                        ],
+                                        "distance": 0.32484287382386784,
+                                        "size": 4
+                                       },
+                                       {
+                                        "label": 116,
+                                        "size": 1
+                                       }
+                                      ],
+                                      "distance": 0.4101025351041208,
+                                      "size": 5
+                                     }
+                                    ],
+                                    "distance": 0.4834387364152234,
+                                    "size": 10
+                                   },
+                                   {
+                                    "label": 57,
+                                    "size": 1
+                                   }
+                                  ],
+                                  "distance": 0.5269339758616132,
+                                  "size": 11
+                                 },
+                                 {
+                                  "children": [
+                                   {
+                                    "children": [
+                                     {
+                                      "children": [
+                                       {
+                                        "children": [
+                                         {
+                                          "children": [
+                                           {
+                                            "label": 7,
+                                            "size": 1
+                                           },
+                                           {
+                                            "children": [
+                                             {
+                                              "label": 71,
+                                              "size": 1
+                                             },
+                                             {
+                                              "label": 83,
+                                              "size": 1
+                                             }
+                                            ],
+                                            "distance": 0.2260345795691573,
+                                            "size": 2
+                                           }
+                                          ],
+                                          "distance": 0.2569389097985485,
+                                          "size": 3
+                                         },
+                                         {
+                                          "label": 70,
+                                          "size": 1
+                                         }
+                                        ],
+                                        "distance": 0.3085316647600005,
+                                        "size": 4
+                                       },
+                                       {
+                                        "label": 50,
+                                        "size": 1
+                                       }
+                                      ],
+                                      "distance": 0.32851391342400715,
+                                      "size": 5
+                                     },
+                                     {
+                                      "label": 85,
+                                      "size": 1
+                                     }
+                                    ],
+                                    "distance": 0.3861424725780839,
+                                    "size": 6
+                                   },
+                                   {
+                                    "children": [
+                                     {
+                                      "label": 51,
+                                      "size": 1
+                                     },
+                                     {
+                                      "label": 157,
+                                      "size": 1
+                                     }
+                                    ],
+                                    "distance": 0.4132151138990583,
+                                    "size": 2
+                                   }
+                                  ],
+                                  "distance": 0.4457920391543756,
+                                  "size": 8
+                                 }
+                                ],
+                                "distance": 0.5661710923693938,
+                                "size": 19
+                               }
+                              ],
+                              "distance": 0.6397703155226073,
+                              "size": 52
+                             },
+                             {
+                              "children": [
+                               {
+                                "label": 12,
+                                "size": 1
+                               },
+                               {
+                                "label": 16,
+                                "size": 1
+                               }
+                              ],
+                              "distance": 0.5407392881152848,
+                              "size": 2
+                             }
+                            ],
+                            "distance": 0.6905525929172178,
+                            "size": 54
+                           },
+                           {
+                            "children": [
+                             {
+                              "label": 135,
+                              "size": 1
+                             },
+                             {
+                              "label": 168,
+                              "size": 1
+                             }
+                            ],
+                            "distance": 0.6165643245890207,
+                            "size": 2
+                           }
+                          ],
+                          "distance": 0.6996936488498192,
+                          "size": 56
+                         },
+                         {
+                          "children": [
+                           {
+                            "children": [
+                             {
+                              "children": [
+                               {
+                                "children": [
+                                 {
+                                  "children": [
+                                   {
+                                    "children": [
+                                     {
+                                      "children": [
+                                       {
+                                        "label": 17,
+                                        "size": 1
+                                       },
+                                       {
+                                        "children": [
+                                         {
+                                          "label": 46,
+                                          "size": 1
+                                         },
+                                         {
+                                          "label": 165,
+                                          "size": 1
+                                         }
+                                        ],
+                                        "distance": 0.2923846368030435,
+                                        "size": 2
+                                       }
+                                      ],
+                                      "distance": 0.32909215129249253,
+                                      "size": 3
+                                     },
+                                     {
+                                      "children": [
+                                       {
+                                        "label": 26,
+                                        "size": 1
+                                       },
+                                       {
+                                        "children": [
+                                         {
+                                          "label": 55,
+                                          "size": 1
+                                         },
+                                         {
+                                          "label": 154,
+                                          "size": 1
+                                         }
+                                        ],
+                                        "distance": 0.22131206421276595,
+                                        "size": 2
+                                       }
+                                      ],
+                                      "distance": 0.35314730254879506,
+                                      "size": 3
+                                     }
+                                    ],
+                                    "distance": 0.4322936255893419,
+                                    "size": 6
+                                   },
+                                   {
+                                    "children": [
+                                     {
+                                      "children": [
+                                       {
+                                        "label": 21,
+                                        "size": 1
+                                       },
+                                       {
+                                        "label": 45,
+                                        "size": 1
+                                       }
+                                      ],
+                                      "distance": 0.2769944704558709,
+                                      "size": 2
+                                     },
+                                     {
+                                      "label": 137,
+                                      "size": 1
+                                     }
+                                    ],
+                                    "distance": 0.3653667085421865,
+                                    "size": 3
+                                   }
+                                  ],
+                                  "distance": 0.4555988907587003,
+                                  "size": 9
+                                 },
+                                 {
+                                  "children": [
+                                   {
+                                    "children": [
+                                     {
+                                      "label": 22,
+                                      "size": 1
+                                     },
+                                     {
+                                      "children": [
+                                       {
+                                        "label": 35,
+                                        "size": 1
+                                       },
+                                       {
+                                        "label": 36,
+                                        "size": 1
+                                       }
+                                      ],
+                                      "distance": 0.10453984607128586,
+                                      "size": 2
+                                     }
+                                    ],
+                                    "distance": 0.36074376329775343,
+                                    "size": 3
+                                   },
+                                   {
+                                    "label": 92,
+                                    "size": 1
+                                   }
+                                  ],
+                                  "distance": 0.4346913767328225,
+                                  "size": 4
+                                 }
+                                ],
+                                "distance": 0.5100728792420749,
+                                "size": 13
+                               },
+                               {
+                                "label": 59,
+                                "size": 1
+                               }
+                              ],
+                              "distance": 0.5788764669002192,
+                              "size": 14
+                             },
+                             {
+                              "children": [
+                               {
+                                "label": 28,
+                                "size": 1
+                               },
+                               {
+                                "label": 54,
+                                "size": 1
+                               }
+                              ],
+                              "distance": 0.523795509765661,
+                              "size": 2
+                             }
+                            ],
+                            "distance": 0.614603799546652,
+                            "size": 16
+                           },
+                           {
+                            "children": [
+                             {
+                              "children": [
+                               {
+                                "children": [
+                                 {
+                                  "label": 33,
+                                  "size": 1
+                                 },
+                                 {
+                                  "children": [
+                                   {
+                                    "children": [
+                                     {
+                                      "label": 65,
+                                      "size": 1
+                                     },
+                                     {
+                                      "label": 91,
+                                      "size": 1
+                                     }
+                                    ],
+                                    "distance": 0.27947879493014705,
+                                    "size": 2
+                                   },
+                                   {
+                                    "label": 113,
+                                    "size": 1
+                                   }
+                                  ],
+                                  "distance": 0.30940135174926314,
+                                  "size": 3
+                                 }
+                                ],
+                                "distance": 0.504270721091535,
+                                "size": 4
+                               },
+                               {
+                                "label": 156,
+                                "size": 1
+                               }
+                              ],
+                              "distance": 0.5337414018373304,
+                              "size": 5
+                             },
+                             {
+                              "children": [
+                               {
+                                "label": 138,
+                                "size": 1
+                               },
+                               {
+                                "children": [
+                                 {
+                                  "label": 146,
+                                  "size": 1
+                                 },
+                                 {
+                                  "label": 155,
+                                  "size": 1
+                                 }
+                                ],
+                                "distance": 0.4455010969659765,
+                                "size": 2
+                               }
+                              ],
+                              "distance": 0.575404398549904,
+                              "size": 3
+                             }
+                            ],
+                            "distance": 0.6694704675105649,
+                            "size": 8
+                           }
+                          ],
+                          "distance": 0.696740706199374,
+                          "size": 24
+                         }
+                        ],
+                        "distance": 0.7253055203337208,
+                        "size": 80
+                       },
+                       {
+                        "children": [
+                         {
+                          "children": [
+                           {
+                            "label": 67,
+                            "size": 1
+                           },
+                           {
+                            "children": [
+                             {
+                              "children": [
+                               {
+                                "label": 82,
+                                "size": 1
+                               },
+                               {
+                                "label": 170,
+                                "size": 1
+                               }
+                              ],
+                              "distance": 0.4533077355677779,
+                              "size": 2
+                             },
+                             {
+                              "children": [
+                               {
+                                "label": 88,
+                                "size": 1
+                               },
+                               {
+                                "label": 95,
+                                "size": 1
+                               }
+                              ],
+                              "distance": 0.44707697399488266,
+                              "size": 2
+                             }
+                            ],
+                            "distance": 0.5571568926882673,
+                            "size": 4
+                           }
+                          ],
+                          "distance": 0.588472302989484,
+                          "size": 5
+                         },
+                         {
+                          "label": 108,
+                          "size": 1
+                         }
+                        ],
+                        "distance": 0.6652316839740852,
+                        "size": 6
+                       }
+                      ],
+                      "distance": 0.760221335164343,
+                      "size": 86
+                     },
+                     {
+                      "children": [
+                       {
+                        "children": [
+                         {
+                          "children": [
+                           {
+                            "label": 29,
+                            "size": 1
+                           },
+                           {
+                            "children": [
+                             {
+                              "children": [
+                               {
+                                "children": [
+                                 {
+                                  "children": [
+                                   {
+                                    "label": 66,
+                                    "size": 1
+                                   },
+                                   {
+                                    "label": 129,
+                                    "size": 1
+                                   }
+                                  ],
+                                  "distance": 0.052369751201715276,
+                                  "size": 2
+                                 },
+                                 {
+                                  "label": 86,
+                                  "size": 1
+                                 }
+                                ],
+                                "distance": 0.2059894484269193,
+                                "size": 3
+                               },
+                               {
+                                "label": 79,
+                                "size": 1
+                               }
+                              ],
+                              "distance": 0.31509481394312727,
+                              "size": 4
+                             },
+                             {
+                              "label": 75,
+                              "size": 1
+                             }
+                            ],
+                            "distance": 0.37272909582302444,
+                            "size": 5
+                           }
+                          ],
+                          "distance": 0.6836723340742535,
+                          "size": 6
+                         },
+                         {
+                          "children": [
+                           {
+                            "label": 60,
+                            "size": 1
+                           },
+                           {
+                            "label": 149,
+                            "size": 1
+                           }
+                          ],
+                          "distance": 0.6913234962440629,
+                          "size": 2
+                         }
+                        ],
+                        "distance": 0.7331535195865697,
+                        "size": 8
+                       },
+                       {
+                        "children": [
+                         {
+                          "children": [
+                           {
+                            "children": [
+                             {
+                              "label": 102,
+                              "size": 1
+                             },
+                             {
+                              "label": 130,
+                              "size": 1
+                             }
+                            ],
+                            "distance": 0.33312672062935555,
+                            "size": 2
+                           },
+                           {
+                            "label": 117,
+                            "size": 1
+                           }
+                          ],
+                          "distance": 0.4372527600557755,
+                          "size": 3
+                         },
+                         {
+                          "children": [
+                           {
+                            "children": [
+                             {
+                              "label": 153,
+                              "size": 1
+                             },
+                             {
+                              "label": 169,
+                              "size": 1
+                             }
+                            ],
+                            "distance": 0.32140780774962685,
+                            "size": 2
+                           },
+                           {
+                            "label": 158,
+                            "size": 1
+                           }
+                          ],
+                          "distance": 0.5133477134236004,
+                          "size": 3
+                         }
+                        ],
+                        "distance": 0.545393390308397,
+                        "size": 6
+                       }
+                      ],
+                      "distance": 0.7440937899116058,
+                      "size": 14
+                     }
+                    ],
+                    "distance": 0.7681120358528111,
+                    "size": 100
+                   },
+                   {
+                    "children": [
+                     {
+                      "children": [
+                       {
+                        "label": 61,
+                        "size": 1
+                       },
+                       {
+                        "children": [
+                         {
+                          "children": [
+                           {
+                            "children": [
+                             {
+                              "label": 62,
+                              "size": 1
+                             },
+                             {
+                              "label": 63,
+                              "size": 1
+                             }
+                            ],
+                            "distance": 0.048068561821083766,
+                            "size": 2
+                           },
+                           {
+                            "label": 80,
+                            "size": 1
+                           }
+                          ],
+                          "distance": 0.0706104961719925,
+                          "size": 3
+                         },
+                         {
+                          "label": 64,
+                          "size": 1
+                         }
+                        ],
+                        "distance": 0.16115065155919608,
+                        "size": 4
+                       }
+                      ],
+                      "distance": 0.27625542359280986,
+                      "size": 5
+                     },
+                     {
+                      "label": 150,
+                      "size": 1
+                     }
+                    ],
+                    "distance": 0.41021428921089614,
+                    "size": 6
+                   }
+                  ],
+                  "distance": 0.8052450877702771,
+                  "size": 106
+                 },
+                 {
+                  "children": [
+                   {
+                    "children": [
+                     {
+                      "label": 15,
+                      "size": 1
+                     },
+                     {
+                      "label": 167,
+                      "size": 1
+                     }
+                    ],
+                    "distance": 0.6491552613402574,
+                    "size": 2
+                   },
+                   {
+                    "children": [
+                     {
+                      "children": [
+                       {
+                        "children": [
+                         {
+                          "children": [
+                           {
+                            "children": [
+                             {
+                              "label": 39,
+                              "size": 1
+                             },
+                             {
+                              "label": 42,
+                              "size": 1
+                             }
+                            ],
+                            "distance": 0.3815170116998472,
+                            "size": 2
+                           },
+                           {
+                            "label": 131,
+                            "size": 1
+                           }
+                          ],
+                          "distance": 0.44481347359943774,
+                          "size": 3
+                         },
+                         {
+                          "label": 120,
+                          "size": 1
+                         }
+                        ],
+                        "distance": 0.5045251234093385,
+                        "size": 4
+                       },
+                       {
+                        "children": [
+                         {
+                          "children": [
+                           {
+                            "children": [
+                             {
+                              "label": 87,
+                              "size": 1
+                             },
+                             {
+                              "label": 159,
+                              "size": 1
+                             }
+                            ],
+                            "distance": 0.2611658268217397,
+                            "size": 2
+                           },
+                           {
+                            "label": 105,
+                            "size": 1
+                           }
+                          ],
+                          "distance": 0.37681330613098474,
+                          "size": 3
+                         },
+                         {
+                          "label": 96,
+                          "size": 1
+                         }
+                        ],
+                        "distance": 0.4879932310533122,
+                        "size": 4
+                       }
+                      ],
+                      "distance": 0.5853480158295051,
+                      "size": 8
+                     },
+                     {
+                      "label": 109,
+                      "size": 1
+                     }
+                    ],
+                    "distance": 0.6881489660740345,
+                    "size": 9
+                   }
+                  ],
+                  "distance": 0.7329871207995444,
+                  "size": 11
+                 }
+                ],
+                "distance": 0.8155130485731631,
+                "size": 117
+               },
+               {
+                "children": [
+                 {
+                  "children": [
+                   {
+                    "children": [
+                     {
+                      "children": [
+                       {
+                        "children": [
+                         {
+                          "children": [
+                           {
+                            "children": [
+                             {
+                              "children": [
+                               {
+                                "children": [
+                                 {
+                                  "children": [
+                                   {
+                                    "children": [
+                                     {
+                                      "label": 5,
+                                      "size": 1
+                                     },
+                                     {
+                                      "label": 9,
+                                      "size": 1
+                                     }
+                                    ],
+                                    "distance": 0.2923669242178858,
+                                    "size": 2
+                                   },
+                                   {
+                                    "label": 143,
+                                    "size": 1
+                                   }
+                                  ],
+                                  "distance": 0.48253753046599623,
+                                  "size": 3
+                                 },
+                                 {
+                                  "children": [
+                                   {
+                                    "children": [
+                                     {
+                                      "children": [
+                                       {
+                                        "children": [
+                                         {
+                                          "children": [
+                                           {
+                                            "label": 18,
+                                            "size": 1
+                                           },
+                                           {
+                                            "children": [
+                                             {
+                                              "label": 101,
+                                              "size": 1
+                                             },
+                                             {
+                                              "label": 160,
+                                              "size": 1
+                                             }
+                                            ],
+                                            "distance": 0.1964546632467542,
+                                            "size": 2
+                                           }
+                                          ],
+                                          "distance": 0.3141893668353143,
+                                          "size": 3
+                                         },
+                                         {
+                                          "children": [
+                                           {
+                                            "label": 30,
+                                            "size": 1
+                                           },
+                                           {
+                                            "children": [
+                                             {
+                                              "label": 41,
+                                              "size": 1
+                                             },
+                                             {
+                                              "label": 148,
+                                              "size": 1
+                                             }
+                                            ],
+                                            "distance": 0.2207642687527166,
+                                            "size": 2
+                                           }
+                                          ],
+                                          "distance": 0.26856842357020233,
+                                          "size": 3
+                                         }
+                                        ],
+                                        "distance": 0.3360757845665474,
+                                        "size": 6
+                                       },
+                                       {
+                                        "children": [
+                                         {
+                                          "label": 40,
+                                          "size": 1
+                                         },
+                                         {
+                                          "label": 133,
+                                          "size": 1
+                                         }
+                                        ],
+                                        "distance": 0.2579310515687674,
+                                        "size": 2
+                                       }
+                                      ],
+                                      "distance": 0.34374071700613057,
+                                      "size": 8
+                                     },
+                                     {
+                                      "children": [
+                                       {
+                                        "children": [
+                                         {
+                                          "children": [
+                                           {
+                                            "label": 20,
+                                            "size": 1
+                                           },
+                                           {
+                                            "label": 27,
+                                            "size": 1
+                                           }
+                                          ],
+                                          "distance": 0.28864808198940495,
+                                          "size": 2
+                                         },
+                                         {
+                                          "label": 72,
+                                          "size": 1
+                                         }
+                                        ],
+                                        "distance": 0.3490358336251774,
+                                        "size": 3
+                                       },
+                                       {
+                                        "label": 48,
+                                        "size": 1
+                                       }
+                                      ],
+                                      "distance": 0.4343527203198281,
+                                      "size": 4
+                                     }
+                                    ],
+                                    "distance": 0.44509199239719643,
+                                    "size": 12
+                                   },
+                                   {
+                                    "children": [
+                                     {
+                                      "children": [
+                                       {
+                                        "label": 90,
+                                        "size": 1
+                                       },
+                                       {
+                                        "label": 147,
+                                        "size": 1
+                                       }
+                                      ],
+                                      "distance": 0.26163106805784275,
+                                      "size": 2
+                                     },
+                                     {
+                                      "label": 119,
+                                      "size": 1
+                                     }
+                                    ],
+                                    "distance": 0.29552062462054013,
+                                    "size": 3
+                                   }
+                                  ],
+                                  "distance": 0.4880330979744465,
+                                  "size": 15
+                                 }
+                                ],
+                                "distance": 0.5432629427520017,
+                                "size": 18
+                               },
+                               {
+                                "children": [
+                                 {
+                                  "label": 25,
+                                  "size": 1
+                                 },
+                                 {
+                                  "label": 134,
+                                  "size": 1
+                                 }
+                                ],
+                                "distance": 0.44694863362006665,
+                                "size": 2
+                               }
+                              ],
+                              "distance": 0.5998311496166746,
+                              "size": 20
+                             },
+                             {
+                              "children": [
+                               {
+                                "label": 81,
+                                "size": 1
+                               },
+                               {
+                                "label": 142,
+                                "size": 1
+                               }
+                              ],
+                              "distance": 0.3962345893848124,
+                              "size": 2
+                             }
+                            ],
+                            "distance": 0.6351525139536505,
+                            "size": 22
+                           },
+                           {
+                            "children": [
+                             {
+                              "label": 106,
+                              "size": 1
+                             },
+                             {
+                              "label": 145,
+                              "size": 1
+                             }
+                            ],
+                            "distance": 0.5912643155356909,
+                            "size": 2
+                           }
+                          ],
+                          "distance": 0.6881549178743049,
+                          "size": 24
+                         },
+                         {
+                          "children": [
+                           {
+                            "children": [
+                             {
+                              "children": [
+                               {
+                                "children": [
+                                 {
+                                  "label": 6,
+                                  "size": 1
+                                 },
+                                 {
+                                  "label": 14,
+                                  "size": 1
+                                 }
+                                ],
+                                "distance": 0.33110505906136634,
+                                "size": 2
+                               },
+                               {
+                                "children": [
+                                 {
+                                  "label": 53,
+                                  "size": 1
+                                 },
+                                 {
+                                  "label": 97,
+                                  "size": 1
+                                 }
+                                ],
+                                "distance": 0.43653056927588374,
+                                "size": 2
+                               }
+                              ],
+                              "distance": 0.5098152224145113,
+                              "size": 4
+                             },
+                             {
+                              "children": [
+                               {
+                                "label": 19,
+                                "size": 1
+                               },
+                               {
+                                "children": [
+                                 {
+                                  "label": 76,
+                                  "size": 1
+                                 },
+                                 {
+                                  "label": 122,
+                                  "size": 1
+                                 }
+                                ],
+                                "distance": 0.3453194844512064,
+                                "size": 2
+                               }
+                              ],
+                              "distance": 0.39030253472283033,
+                              "size": 3
+                             }
+                            ],
+                            "distance": 0.5857759517061716,
+                            "size": 7
+                           },
+                           {
+                            "children": [
+                             {
+                              "label": 13,
+                              "size": 1
+                             },
+                             {
+                              "label": 124,
+                              "size": 1
+                             }
+                            ],
+                            "distance": 0.5634935779932329,
+                            "size": 2
+                           }
+                          ],
+                          "distance": 0.647466668857829,
+                          "size": 9
+                         }
+                        ],
+                        "distance": 0.7043185504567733,
+                        "size": 33
+                       },
+                       {
+                        "children": [
+                         {
+                          "label": 112,
+                          "size": 1
+                         },
+                         {
+                          "label": 166,
+                          "size": 1
+                         }
+                        ],
+                        "distance": 0.610105434218448,
+                        "size": 2
+                       }
+                      ],
+                      "distance": 0.7207713967842817,
+                      "size": 35
+                     },
+                     {
+                      "label": 144,
+                      "size": 1
+                     }
+                    ],
+                    "distance": 0.7456708632290945,
+                    "size": 36
+                   },
+                   {
+                    "children": [
+                     {
+                      "children": [
+                       {
+                        "children": [
+                         {
+                          "children": [
+                           {
+                            "children": [
+                             {
+                              "label": 10,
+                              "size": 1
+                             },
+                             {
+                              "label": 11,
+                              "size": 1
+                             }
+                            ],
+                            "distance": 0.18069463172501732,
+                            "size": 2
+                           },
+                           {
+                            "children": [
+                             {
+                              "label": 77,
+                              "size": 1
+                             },
+                             {
+                              "label": 78,
+                              "size": 1
+                             }
+                            ],
+                            "distance": 0.11976722869737488,
+                            "size": 2
+                           }
+                          ],
+                          "distance": 0.3152239321921264,
+                          "size": 4
+                         },
+                         {
+                          "label": 74,
+                          "size": 1
+                         }
+                        ],
+                        "distance": 0.5279087945152178,
+                        "size": 5
+                       },
+                       {
+                        "label": 151,
+                        "size": 1
+                       }
+                      ],
+                      "distance": 0.6157395197196676,
+                      "size": 6
+                     },
+                     {
+                      "children": [
+                       {
+                        "children": [
+                         {
+                          "children": [
+                           {
+                            "label": 23,
+                            "size": 1
+                           },
+                           {
+                            "label": 24,
+                            "size": 1
+                           }
+                          ],
+                          "distance": 0.46218264614650684,
+                          "size": 2
+                         },
+                         {
+                          "label": 107,
+                          "size": 1
+                         }
+                        ],
+                        "distance": 0.5643816419408737,
+                        "size": 3
+                       },
+                       {
+                        "label": 136,
+                        "size": 1
+                       }
+                      ],
+                      "distance": 0.6538257614897531,
+                      "size": 4
+                     }
+                    ],
+                    "distance": 0.6754179283984155,
+                    "size": 10
+                   }
+                  ],
+                  "distance": 0.7655380948587358,
+                  "size": 46
+                 },
+                 {
+                  "children": [
+                   {
+                    "children": [
+                     {
+                      "label": 37,
+                      "size": 1
+                     },
+                     {
+                      "children": [
+                       {
+                        "label": 44,
+                        "size": 1
+                       },
+                       {
+                        "label": 47,
+                        "size": 1
+                       }
+                      ],
+                      "distance": 0.48508026345427535,
+                      "size": 2
+                     }
+                    ],
+                    "distance": 0.6377616399463288,
+                    "size": 3
+                   },
+                   {
+                    "children": [
+                     {
+                      "label": 111,
+                      "size": 1
+                     },
+                     {
+                      "label": 163,
+                      "size": 1
+                     }
+                    ],
+                    "distance": 0.5930302237901453,
+                    "size": 2
+                   }
+                  ],
+                  "distance": 0.7253526143542857,
+                  "size": 5
+                 }
+                ],
+                "distance": 0.809610187087638,
+                "size": 51
+               }
+              ],
+              "distance": 0.8181765395080967,
+              "size": 168
+             },
+             {
+              "children": [
+               {
+                "label": 89,
+                "size": 1
+               },
+               {
+                "label": 164,
+                "size": 1
+               }
+              ],
+              "distance": 0.597167285985298,
+              "size": 2
+             }
+            ],
+            "distance": 0.8545508034643263,
+            "size": 170
+           },
+           {
+            "label": 84,
+            "size": 1
+           }
+          ],
+          "distance": 0.8799648029940469,
+          "size": 171
+         }
+        ];
+
+     // Intialize dendrogram.
+        viz = dendrogram().width(800).height(4000).labels(labels);
+
+     // Generate dendrogram.
+        d3.select("body")
+          .datum(data)
+          .call(viz);
+
+    });
+
+</script>
