@@ -6,7 +6,7 @@
 
     exports.dendrogram = function () {
 
-        var dendrogram, width, height, labels, cluster, diagonal;
+        var dendrogram, width, height, labels, clusterLayout, diagonal;
 
         width = 300;
         height = 600;
@@ -15,7 +15,7 @@
         labels = [];
 
      // Create cluster layout.
-        cluster = d3.layout.cluster();
+        clusterLayout = d3.layout.cluster();
 
         diagonal = d3.svg.diagonal()
                      .projection(function (d) {
@@ -26,58 +26,72 @@
 
             selection.each(function (data) {
 
-                var svg, group, nodes, link, node;
+                var nodes, links, svg, dendrogram, edges, vertices, enterVertex;
 
-             // Select existing SVG elements.
+                clusterLayout.size([height, width - 160]);
+                nodes = clusterLayout.nodes(data[0]);
+                links = clusterLayout.links(nodes);
+
+             // Generate canvas.
                 svg = d3.select(this)
                         .selectAll("svg")
-                        .data([data]) // Trick to create only one svg element for each data set.
+                        .data([data]);
 
-             // Create non-existing SVG elements.
+             // Generate chart template.
                 svg.enter()
-                   .append("svg");
+                   .append("svg")
+                   .append("g")
+                   .attr("id", "dendrogram")
+                   .attr("transform", "translate(40, 0)");
 
-             // Update both existing and newly created SVG elements.
+             // Update dimensions.
                 svg.attr("width", width)
                    .attr("height", height);
 
-                group = svg.append("g")
-                           .attr("transform", "translate(40, 0)");
+                dendrogram = d3.select("g#dendrogram");
 
-                cluster.size([height, width - 160]);
+             // Generate edges.
+                edges = dendrogram.selectAll("path.link")
+                                  .data(links);
 
-                nodes = cluster.nodes(data[0]);
+                edges.enter()
+                     .append("path")
+                     .attr("class", "link");
 
-                link = group.selectAll("path.link")
-                            .data(cluster.links(nodes))
-                            .enter()
-                            .append("path")
-                            .attr("class", "link")
-                            .attr("d", diagonal);
+                edges.attr("d", diagonal);
 
-                node = group.selectAll("g.node")
-                            .data(nodes)
-                            .enter()
-                            .append("g")
-                            .attr("class", "node")
-                            .attr("transform", function (d) {
-                                return "translate(" + d.y + "," + d.x + ")";
-                             });
+                edges.exit()
+                     .remove();
 
-                node.append("circle")
-                    .attr("r", 4.5);
+             // Until I figure out a way how to join correctly over changing elements,
+             // I will just remove what is there first.
+                dendrogram.selectAll("g.node")
+                          .remove();
 
-                node.append("text")
-                    .attr("dx", function (d) {
-                        return d.children ? -8 : 8;
-                     })
-                    .attr("dy", 3)
-                    .attr("text-anchor", function (d) {
-                        return d.children ? "end" : "start";
-                     })
-                    .text(function (d) {
-                        return labels[d.label];
-                     });
+             // Generate vertices.
+                vertices = dendrogram.selectAll("g.node")
+                                     .data(nodes);
+
+                enterVertex = vertices.enter()
+                                      .append("g")
+                                      .attr("class", "node");
+                enterVertex.append("circle")
+                           .attr("r", 4.5);
+                enterVertex.append("text")
+                        .attr("dx", function (d) {
+                            return d.children ? -8 : 8;
+                         })
+                        .attr("dy", 3)
+                        .attr("text-anchor", function (d) {
+                            return d.children ? "end" : "start";
+                         })
+                        .text(function (d) {
+                            return labels[d.label];
+                         });
+
+                vertices.attr("transform", function (d) {
+                    return "translate(" + d.y + "," + d.x + ")";
+                });
 
             });
 
