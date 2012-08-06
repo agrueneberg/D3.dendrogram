@@ -6,7 +6,7 @@
 
     exports.dendrogram = function () {
 
-        var dendrogram, width, height, labels, clusterLayout, diagonal;
+        var dendrogram, width, height, labels, clusterLayout, elbow;
 
         width = 300;
         height = 600;
@@ -17,10 +17,10 @@
      // Create cluster layout.
         clusterLayout = d3.layout.cluster();
 
-        diagonal = d3.svg.diagonal()
-                     .projection(function (d) {
-                         return [d.y, d.x];
-                      });
+     // Taken from http://bl.ocks.org/2429963.
+        elbow = function (d, i) {
+            return "M" + d.source.y + "," + d.source.x + "V" + d.target.x + "H" + d.target.y;
+        };
 
         dendrogram = function (selection) {
 
@@ -58,7 +58,7 @@
                      .append("path")
                      .attr("class", "link");
 
-                edges.attr("d", diagonal);
+                edges.attr("d", elbow);
 
                 edges.exit()
                      .remove();
