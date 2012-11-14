@@ -29,7 +29,13 @@
                 var nodes, links, svg, dendrogram, edges, vertices, enterVertex;
 
                 clusterLayout.size([height, width - 160]);
-                nodes = clusterLayout.nodes(data[0]);
+
+                if (data.length > 0) {
+                    nodes = clusterLayout.nodes(data[0]);
+                } else {
+                    nodes = [];
+                }
+
                 links = clusterLayout.links(nodes);
 
              // Generate canvas.
